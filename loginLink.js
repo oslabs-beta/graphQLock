@@ -1,10 +1,7 @@
-//links users log in info giving us access to role
-
 //import
 
-//authenticateLogin
-    //userController.verify()
-    //graphQLOCK.link()
+
+const refreshTokens = []
 
 function link(req) {
     const userRole = {role: req.body.role}
@@ -19,10 +16,10 @@ function link(req) {
         }
     }
 
-    const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET)
+    const refreshToken = jwt.sign(userRole, process.env.REFRESH_TOKEN_SECRET)
+    refreshTokens.push(refreshToken);
 
     return res.json( { accessToken: accessToken, refreshToken: refreshToken})
-
 }
 
 //export
