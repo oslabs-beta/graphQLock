@@ -13,8 +13,8 @@ app.use('/token', (req, res) => {
     const accessToken = req.body.token.accessToken
     const userRole = req.body.role
 
-    if (accessToken == null) {
-        if (refreshToken != null) {
+    if (accessToken === null) {
+        if (refreshToken !== null) {
             if (!refreshTokens.includes(refreshToken)) return res.sendStatus(403);
             jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
                 if (err) return res.sendStatus(403);
