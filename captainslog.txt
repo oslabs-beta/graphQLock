@@ -1,0 +1,1 @@
+2.22.2022: created base files (server, configFiles, authMiddleware, main.js) and webpack
