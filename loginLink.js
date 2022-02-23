@@ -21,7 +21,7 @@ function link(req) {
 
     const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET)
 
-    res.json( { accessToken: accessToken, refreshToken: refreshToken})
+    return res.json( { accessToken: accessToken, refreshToken: refreshToken})
 
 }
 
