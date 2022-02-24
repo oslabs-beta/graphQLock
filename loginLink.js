@@ -1,6 +1,6 @@
 //import
 
-function link(req) {
+function link(req, res, next) {
   const userRole = {role: req.body.role}
   const user = req.body.role
 
@@ -22,7 +22,11 @@ function link(req) {
       else console.log('Error in loginLink:', err)
   })
 
-  return res.json( { accessToken: accessToken, refreshToken: refreshToken})
+  // return res.json( { accessToken: accessToken, refreshToken: refreshToken})
+  
+  res.cookie('accessToken', accessToken);
+  res.cookie('refreshToken', refreshToken);
+  return next();
 }
 
 //export
