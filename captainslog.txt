@@ -1,0 +1,4 @@
+2.22.2022: created base files (server, configFiles, authMiddleware, main.js) 
+and webpack. wrote first drafts of loginLink and server
+2.23.2022: connected mongo databse and set up schema, refactored access token functionality,
+published package to npm, setup refresh token functionality
