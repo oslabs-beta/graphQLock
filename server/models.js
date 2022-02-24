@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-mongoose.connect(process.env.mongoURIv2, {
+mongoose.connect(process.env.mongoURI, {
     // options for the connect method to parse the URI
     useNewUrlParser: true,
     useUnifiedTopology: true,
@@ -17,6 +17,6 @@ const userSchema = new Schema({
   refreshToken: String,
 });
 
-const Users = mongoose.model('users', userSchema);
+const User = mongoose.model('users', userSchema);
 
 module.exports = { Users };

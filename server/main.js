@@ -1,20 +1,22 @@
 //imports
 // const path = require('path');
-const express = require('express');
 const app = express();
+const express = require('express');
 require('dotenv').config();
+const bcrypt = require('bcrypt');
 // const roles = require('../configFiles/operations.config.gl');
-
-const controller = require('./controller');
+const { User } =  require('./models')
+// const controller = require('./controller');
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 //TO DO:
   //Must include a userID in the DB **
-  //Refactor looping endpoints to server to more accurately verify the accessToken
-  //Require in bcrypt
-  //Require in User from models
-  //Ensure req.body.user works
+  //Refactor looping endpoints to server to more accurately verify the accessToken**
+  //Require in bcrypt**
+  //Require in User from models**
+  //Ensure req.body.user works (are roles included in each request?)
 
 function checkForAccessToken(req, res, next) {
   //Must send accessToken under authorization header as a Bearer token
@@ -24,7 +26,7 @@ function checkForAccessToken(req, res, next) {
   if (accessToken !== null) {
     res.locals.permitted = true
     res.locals.token = accessToken
-    return next();
+    return next()
   }
 
   //Must send refreshToken under authorizationRefresh header as a Bearer token
@@ -46,22 +48,24 @@ function checkForAccessToken(req, res, next) {
       bcrypt.compare(refreshToken, user.refreshToken)
         .then(res => {
           if (res === true) {
-            //give them a new accessToken
+            //give user a new accessToken
             const secret = `process.env.ACCESS_TOKEN_${role.toUpperCase()}_SECRET`
             accessToken = jwt.sign(userRole, secret, {expiresIn: '15m'})
-            //give them a new refreshToken
+            res.locals.accessToken = accessToken
+            //give user new refreshToken
             const newRefreshToken = jwt.sign(userRole, process.env.REFRESH_TOKEN_SECRET)
             //update the refreshToken
             User.findOneAndUpdate( { username: req.body.user }, (err, user) => {
-                if (!err) {
-                    user.refreshToken = newRefreshToken
-                } else {
-                    return res.status(404).send('Error Occured in checkAccessTokens')
-                }
+              if (!err) {
+                user.refreshToken = newRefreshToken
+              } else {
+                return res.status(404).send('Error Occured in checkAccessTokens')
+              }
             })
             res.locals.permitted = true
             return next()
           }
+          //refreshToken did not match
           else {
             res.locals.permitted = false
             return next()
@@ -75,20 +79,22 @@ function checkForAccessToken(req, res, next) {
   })
 }
 
-//read operations and associated roles
+//for each operation, create an endpoint
 for (const operation in roles) {
-    app.use(`/${operation}`, (req, res) => {
-        if (res.locals.permitted == false) return res.sendStatus(401)
-        
-        for (const role in roles[operation]) {
-            //Do we store the secrets in a database, or in process.env?
-            const secret = `process.env.ACCESS_TOKEN_${role.toUpperCase()}_SECRET`;
-            jwt.verify(myWebToken, secret, (err, found) => {
-                if (found) return res.json(true);
-            })
-        }
-        return res.sendStatus(401);
-    });
+    app.use(`/${operation}`, checkForAccessToken, (req, res) => {
+      if (res.locals.permitted == false) return res.sendStatus(401)
+      
+      //for each role associated with the operation, check the accessToken with that secret
+      accessToken = res.locals.accessToken
+      for (const role in roles[operation]) {
+        //Do we store the secrets in a database, or in process.env?
+        const secret = `process.env.ACCESS_TOKEN_${role.toUpperCase()}_SECRET`;
+        jwt.verify(accessToken, secret, (err, found) => {
+          if (found) return res.json(true);
+        })
+      }
+      return res.sendStatus(401);
+  });
 };
 
 //global error handling
