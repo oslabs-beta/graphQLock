@@ -5,9 +5,8 @@ const bcrypt = require('bcrypt');
 const express = require('express');
 const app = express();
 
-const { User } =  require('./models')
+const { Users } =  require('./models')
 // const roles = require('../configFiles/operations.config.gl');
-// const controller = require('./controller');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -38,7 +37,7 @@ function checkForAccessToken(req, res) {
   //if there is already an accessToken, execute operations
   if (accessToken !== null) {
     res.locals.permitted = true
-    res.locals.token = accessToken
+    res.locals.accessToken = accessToken
     return
   }
 
@@ -54,7 +53,7 @@ function checkForAccessToken(req, res) {
   //A WAY TO CONSISTENTLY ACQUIRE THE ROLE
   const userRole = res.locals.role
 
-  User.find( { username: req.body.user }, (err, user) => {
+  Users.find( { username: req.body.user }, (err, user) => {
     if (!err) {
       bcrypt.compare(refreshToken, user.refreshToken)
         .then(res => {
@@ -70,7 +69,7 @@ function checkForAccessToken(req, res) {
             if (!err) {
             user.refreshToken = newRefreshToken
           } else {
-            return res.status(404).send('Error Occured in checkAccessTokens');
+            return res.status(404).send('Error occured in checkAccessTokens');
           }
           })
           res.locals.permitted = true
@@ -85,7 +84,7 @@ function checkForAccessToken(req, res) {
     }
     else {
       console.log(err)
-      return res.status(404).send('Error Occurred in checkAccessTokens')
+      return res.status(404).send('Error occurred in checkAccessTokens')
     }
   })
 }
@@ -112,11 +111,19 @@ function checkForAccessToken(req, res) {
 //MIDDLWARE TO READ AND VALIDATE COOKIE
 // check for the presence of access token and checks validity
 function validateToken (req, res, next) {
-  checkForAccessToken(req, res) 
+  checkForAccessToken(req, res) ;
   //checks for presence of a token
   if (res.locals.permitted == false) return res.sendStatus(401);
   //if valid return next()
   //if not valid return status401
+  const { role, accessToken } = res.locals;
+  jwt.verify(accessToken, `process.env.ACCESS_TOKEN_${role.toUpperCase()}_SECRET`, (err, found) => {
+    if (err) {
+      console.log(err);
+      return res.status(401).send('Error occurred in validateToken');
+    }
+    return next();
+  });
 }
 
 
