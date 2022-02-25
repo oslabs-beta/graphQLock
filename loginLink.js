@@ -1,25 +1,27 @@
+// sets the cookie on login that we will use for validation
 //import
+const { User } =  require('./models');
 
-function link(req, res, next) {
-  const userRole = {role: req.body.role}
-  const user = req.body.role
+// middleware for login
+function link (req, res, next) {
+  //User must set res.locals
+  const userRole = res.locals.role;
+  const user = res.locals.username;
 
   //Use different secrets based on each role?
-  //Somehow link to permissions.config.gl
-  for (const role in rolesList) {
-    if (role === userRole.role) {
-      const secret = `process.env.ACCESS_TOKEN_${role.toUpperCase()}_SECRET`
-      //is the secret not supposed to be a string? If not, how to convert back to 'plain' code
-      const accessToken = jwt.sign(userRole, secret, { expiresIn: '15m' })
-    }
-  }
+  //Add ID Tokens
+  //Somehow link to operations.config.gl
+  // roles are on the configuration file
+  const secret = `process.env.ACCESS_TOKEN_${role.toUpperCase()}_SECRET`;
+  //is the secret not supposed to be a string? If not, how to convert back to 'plain' code
+  const accessToken = jwt.sign(userRole, secret, { expiresIn: '15m' });
 
-  const refreshToken = jwt.sign(userRole, process.env.REFRESH_TOKEN_SECRET)
-  const hashedToken = bcrypt.hash(refreshToken, 10)
+  const refreshToken = jwt.sign(userRole, process.env.REFRESH_TOKEN_SECRET);
+  const hashedToken = bcrypt.hash(refreshToken, 10);
 
-  User.create( { username: user, refreshToken: hashedToken }, (err, user) => {
-      if (!err) console.log('User created in DB');
-      else console.log('Error in loginLink:', err)
+  User.create( { username: user, refreshToken: hashedToken }, (err, success) => {
+    if (!err) console.log('User created in DB');
+    else console.log('Error in loginLink:', err)
   })
 
   // return res.json( { accessToken: accessToken, refreshToken: refreshToken})
@@ -30,4 +32,4 @@ function link(req, res, next) {
 }
 
 //export
-//module.exports = loginLink;
+module.exports = link;
