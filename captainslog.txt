@@ -2,3 +2,5 @@
 and webpack. wrote first drafts of loginLink and server
 2.23.2022: connected mongo databse and set up schema, refactored access token functionality,
 published package to npm, setup refresh token functionality
+2.24.2022: built in refresh token functionality, created cookie functionality, encrypted secret tokens and saved to .env files
+built out check for access token function
