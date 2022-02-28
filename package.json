@@ -4,9 +4,7 @@
    "version": "1.0.1",
    "main": "main.js",
    "scripts": {
-      "dev": "webpack serve",
-      "build": "webpack",
-      "test": "nodemon server/main.js"
+      
    },
    "repository": {
       "type": "git",

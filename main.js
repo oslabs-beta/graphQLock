@@ -1,17 +1,12 @@
 // read and validate tokens
 require('dotenv').config();
-
 const bcrypt = require('bcrypt');
-// const express = require('express');
-// const app = express();
-
-const { Users } =  require('./models');
 const mongoose = require('mongoose');
-// const roles = require('../configFiles/operations.config.gl');
+const { Users } =  require('./models');
+const loginLink = require('./loginLink');
+const createSecrets = require('./createSecrets');
 
-// app.use(express.json());
-// app.use(express.urlencoded({ extended: true }));
-// app.use(cookieParser());
+// const roles = require('../configFiles/operations.config.gl');
 
 //TO DO:
   //Ensure res.locals.role works (are roles included in each request?) Determined that we will stick with the res.locals.role for now.
@@ -143,4 +138,4 @@ function validateToken (req, res, next) {
 // app.listen(3000, () => console.log('Server listening on port: 3000'));
 
 //export
-module.exports = { validateToken };
+module.exports = { validateToken, loginLink, createSecrets };
