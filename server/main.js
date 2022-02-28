@@ -16,12 +16,6 @@ const mongoose = require('mongoose');
 //TO DO:
   //Ensure res.locals.role works (are roles included in each request?) Determined that we will stick with the res.locals.role for now.
 
-// helper function to get cookie -- move to controller - JWTs stored inside cookie
-// function getCookie(name, cookieString) {
-//   const parts = cookieString.split(`; ${name}=`);
-//   if (parts.length === 2) return parts.pop().split(';').shift();
-// }
-
 // helper function that checks for an access token --move to controller
 function checkForAccessToken(req, res) {
   //Access cookies
