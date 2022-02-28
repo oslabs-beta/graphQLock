@@ -2,50 +2,49 @@
 require('dotenv').config();
 
 const bcrypt = require('bcrypt');
-const express = require('express');
-const app = express();
+// const express = require('express');
+// const app = express();
 
-const { Users } =  require('./models')
+const { Users } =  require('./models');
+const mongoose = require('mongoose');
 // const roles = require('../configFiles/operations.config.gl');
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
+// app.use(express.json());
+// app.use(express.urlencoded({ extended: true }));
+// app.use(cookieParser());
 
 //TO DO:
-  //Must include a userID in the DB **
-  //Refactor looping endpoints to server to more accurately verify the accessToken**
-  //Require in bcrypt**
-  //Require in User from models**
-  //Ensure req.body.user works (are roles included in each request?)
+  //Ensure res.locals.role works (are roles included in each request?) Determined that we will stick with the res.locals.role for now.
 
 // helper function to get cookie -- move to controller - JWTs stored inside cookie
-function getCookie(name, cookieString) {
-  const parts = cookieString.split(`; ${name}=`);
-  if (parts.length === 2) return parts.pop().split(';').shift();
-}
+// function getCookie(name, cookieString) {
+//   const parts = cookieString.split(`; ${name}=`);
+//   if (parts.length === 2) return parts.pop().split(';').shift();
+// }
 
 // helper function that checks for an access token --move to controller
 function checkForAccessToken(req, res) {
   //Access cookies
-  const cookies = `; ${document.cookie}`;
-  const accessToken = getCookie(accessToken, cookies);
-  const refreshToken = getCookie(refreshToken, cookies);
-  console.log('Access Token:', accessToken);
-  console.log('Refresh Token', refreshToken);
+
+  // const cookies = `; ${document.cookie}`;
+  // const accessToken = getCookie(accessToken, cookies);
+  // const refreshToken = getCookie(refreshToken, cookies);
+  // console.log('Access Token:', accessToken);
+  // console.log('Refresh Token', refreshToken);
 
   //if there is already an accessToken, execute operations
-  if (accessToken !== null) {
+  if (req.cookies.accessToken !== null) {
     res.locals.permitted = true
-    res.locals.accessToken = accessToken
+    res.locals.accessToken = req.cookies.accessToken
     return
   }
 
   //If there is no refreshToken, then they will not be permitted
-  if (refreshToken === null) {
+  if (req.cookies.refreshToken === null) {
     res.locals.permitted = false
-    return 
+    return
   }
+
   //Check for the refreshToken in the DB
   //if hashed refresh token matched users token, give new accessToken and refreshToken, delete old refresh token
   //if tokens dont match, return next
@@ -57,30 +56,30 @@ function checkForAccessToken(req, res) {
     if (!err) {
       bcrypt.compare(refreshToken, user.refreshToken)
         .then(res => {
-        if (res === true) {
-          //give user a new accessToken
-          const secret = `process.env.ACCESS_TOKEN_${userRole.toUpperCase()}_SECRET`
-          accessToken = jwt.sign(userRole, secret, {expiresIn: '15m'})
-          res.locals.accessToken = accessToken
-          //give user new refreshToken
-          const newRefreshToken = jwt.sign(userRole, process.env.REFRESH_TOKEN_SECRET)
-          //update the refreshToken in DB
-          User.findOneAndUpdate( { username: req.body.user }, (err, user) => {
-            if (!err) {
-            user.refreshToken = newRefreshToken
-          } else {
-            return res.status(404).send('Error occured in checkAccessTokens');
+          if (res === true) {
+            //give user a new accessToken
+            const secret = eval(`process.env.ACCESS_TOKEN_${userRole.toUpperCase()}_SECRET`)
+            const accessToken = jwt.sign(userRole, secret, {expiresIn: '15m'})
+            res.locals.accessToken = accessToken
+            //give user new refreshToken
+            const newRefreshToken = jwt.sign(userRole, process.env.REFRESH_TOKEN_SECRET)
+            //update the refreshToken in DB
+            Users.findOneAndUpdate( { username: req.body.user }, (err, user) => {
+              if (!err) {
+              user.refreshToken = newRefreshToken
+            } else {
+              return res.status(404).send('Error occured in checkAccessTokens');
+            }
+            })
+            res.locals.permitted = true
+            return 
           }
-          })
-          res.locals.permitted = true
-          return
-        }
-        //refreshToken did not match
-        else {
-          res.locals.permitted = false
-          return
-        }
-      })
+          //refreshToken did not match
+          else {
+            res.locals.permitted = false
+            return 
+          }
+        })
     }
     else {
       console.log(err)
@@ -117,30 +116,37 @@ function validateToken (req, res, next) {
   //if valid return next()
   //if not valid return status401
   const { role, accessToken } = res.locals;
-  jwt.verify(accessToken, `process.env.ACCESS_TOKEN_${role.toUpperCase()}_SECRET`, (err, found) => {
+  const secret = eval(`process.env.ACCESS_TOKEN_${role.toUpperCase()}_SECRET`)
+  jwt.verify(accessToken, secret, (err, found) => {
     if (err) {
       console.log(err);
       return res.status(401).send('Error occurred in validateToken');
+    } else {
+      if (found === undefined) {
+        console.log('Access Token Invlaid');
+        return res.status(401).send('Access Token Invalid')
+      }
+      
+      return next();
     }
-    return next();
   });
 }
 
 
 
 //global error handling
-app.use((err, req, res, next) => {
-  const defaultError = {
-    log: 'Express error handler caught unknown middleware error',
-    status: 500,
-    message: { error: 'Caught Unknown Error'}
-  }
-  const errObj = {...defaultError, ...err};
-  console.log(errObj.log);
-  return res.status(errObj.status).json(errObj.message);
-});
+// app.use((err, req, res, next) => {
+//   const defaultError = {
+//     log: 'Express error handler caught unknown middleware error',
+//     status: 500,
+//     message: { error: 'Caught Unknown Error'}
+//   }
+//   const errObj = {...defaultError, ...err};
+//   console.log(errObj.log);
+//   return res.status(errObj.status).json(errObj.message);
+// });
 
-app.listen(3000, () => console.log('Server listening on port: 3000'));
+// app.listen(3000, () => console.log('Server listening on port: 3000'));
 
 //export
-module.exports = app;
+module.exports = { validateToken };

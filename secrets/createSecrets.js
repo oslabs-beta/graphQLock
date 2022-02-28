@@ -15,7 +15,7 @@ const {
 } = require('envfile');
 const sourcePath = '.env';
 
-// let roles = ['admin', 'read-only', 'group1']; //abstract out to use config files
+// let roles = ['admin', 'read_only', 'group1']; //abstract out to use config files
 
 const createSecrets = (roles) => {
   roles = roles.map(el => `ACCESS_TOKEN_${el.toUpperCase()}_SECRET`);
