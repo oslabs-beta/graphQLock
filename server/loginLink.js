@@ -31,17 +31,16 @@ async function link (req, res, next) {
     mongoose.connection.close();
   })
 
-  // return res.json( { accessToken: accessToken, refreshToken: refreshToken})
-  
   res.cookie('accessToken', accessToken);
   res.cookie('refreshToken', refreshToken);
   return next();
 }
 
-link({}, {locals: {
-  role: "admin",
-  username: "phoenix"
-}});
+//TEST:
+// link({}, {locals: {
+//   role: "admin",
+//   username: "phoenix"
+// }});
 
 //export
-// module.exports = link;
+module.exports = { link };
