@@ -3,8 +3,8 @@ require('dotenv').config();
 const bcrypt = require('bcrypt');
 const mongoose = require('mongoose');
 const { Users } =  require('./models');
-const loginLink = require('./loginLink');
-const createSecrets = require('./createSecrets');
+const { loginLink } = require('./loginLink');
+const { createSecrets } = require('./createSecrets');
 
 // const roles = require('../configFiles/operations.config.gl');
 

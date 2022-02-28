@@ -7,7 +7,7 @@ const bcrypt = require('bcrypt');
 require('dotenv').config();
 
 // middleware for login
-async function link (req, res, next) {
+async function loginLink (req, res, next) {
   //User must set res.locals
   const role = res.locals.role;
   const user = res.locals.username;
@@ -43,4 +43,4 @@ async function link (req, res, next) {
 // }});
 
 //export
-module.exports = { link };
+module.exports = { loginLink };
