@@ -38,10 +38,10 @@ async function link (req, res, next) {
   return next();
 }
 
-link({}, {locals: {
-  role: "admin",
-  username: "phoenix"
-}});
+// link({}, {locals: {
+//   role: "admin",
+//   username: "phoenix"
+// }});
 
 //export
-// module.exports = link;
+module.exports = { link };

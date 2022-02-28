@@ -1,8 +1,8 @@
 require('dotenv').config();
 const mongoose = require('mongoose');
 
-// mongoose.connect(process.env.mongoURI, {
-mongoose.connect('mongodb://Phoenix:graphqlockteam@graphqlock-refreshtoken-shard-00-00.p3mv1.mongodb.net:27017,graphqlock-refreshtoken-shard-00-01.p3mv1.mongodb.net:27017,graphqlock-refreshtoken-shard-00-02.p3mv1.mongodb.net:27017/myFirstDatabase?ssl=true&replicaSet=atlas-ujt427-shard-0&authSource=admin&retryWrites=true&w=majority', {
+mongoose.connect(process.env.mongoURI, {
+// mongoose.connect('https://data.mongodb-api.com/app/data-zcptj/endpoint/data/beta', {
     // options for the connect method to parse the URI
     useNewUrlParser: true,
     useUnifiedTopology: true,
