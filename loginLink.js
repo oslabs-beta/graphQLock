@@ -4,6 +4,11 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 require('dotenv').config();
 
+app.use('/login', checkForValidLogin, loginLink, (req, res) => {
+  return 
+})
+
+
 //Middleware for login
 async function loginLink (req, res, next) {
   //User must set res.locals
