@@ -15,12 +15,6 @@ const { createSecrets } = require('./createSecrets');
 function checkForAccessToken(req, res) {
   //Access cookies
 
-  // const cookies = `; ${document.cookie}`;
-  // const accessToken = getCookie(accessToken, cookies);
-  // const refreshToken = getCookie(refreshToken, cookies);
-  // console.log('Access Token:', accessToken);
-  // console.log('Refresh Token', refreshToken);
-
   //if there is already an accessToken, execute operations
   if (req.cookies.accessToken !== null) {
     res.locals.permitted = true
@@ -77,26 +71,8 @@ function checkForAccessToken(req, res) {
   })
 }
 
-// NOT USING THIS CODE (CLEAN UP)
-// //for each operation, create an endpoint
-// for (const operation in roles) {
-//     app.use(`/${operation}`, checkForAccessToken, (req, res) => {
-//       if (res.locals.permitted == false) return res.sendStatus(401)
-      
-//       //for each role associated with the operation, check the accessToken with that secret
-//       accessToken = res.locals.accessToken
-//       for (const role in roles[operation]) {
-//         //Do we store the secrets in a database, or in process.env?
-//         const secret = `process.env.ACCESS_TOKEN_${role.toUpperCase()}_SECRET`;
-//         jwt.verify(accessToken, secret, (err, found) => {
-//           if (found) return res.json(true);
-//         })
-//       }
-//       return res.sendStatus(401);
-//   });
-// };
+//Middleware to validate accessToken
 
-//MIDDLWARE TO READ AND VALIDATE COOKIE
 // check for the presence of access token and checks validity
 function validateToken (req, res, next) {
   checkForAccessToken(req, res) ;
@@ -122,7 +98,6 @@ function validateToken (req, res, next) {
 }
 
 
-
 //global error handling
 // app.use((err, req, res, next) => {
 //   const defaultError = {
@@ -134,8 +109,6 @@ function validateToken (req, res, next) {
 //   console.log(errObj.log);
 //   return res.status(errObj.status).json(errObj.message);
 // });
-
-// app.listen(3000, () => console.log('Server listening on port: 3000'));
 
 //export
 module.exports = { validateToken, loginLink, createSecrets };

@@ -1,46 +1,35 @@
-// sets the cookie on login that we will use for validation
-//import
+//Sets the cookie on login that we will use for validation
 const { Users } =  require('./models');
-const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 require('dotenv').config();
 
-// middleware for login
+//Middleware for login
 async function loginLink (req, res, next) {
   //User must set res.locals
   const role = res.locals.role;
   const user = res.locals.username;
 
-  //Use different secrets based on each role?
-  //Add ID Tokens
-  //Somehow link to operations.config.gl
-  // roles are on the configuration file
-  //is the secret not supposed to be a string? If not, how to convert back to 'plain' code
   const accessToken = jwt.sign({role}, eval(`process.env.ACCESS_TOKEN_${role.toUpperCase()}_SECRET`), {expiresIn: '15m'});
 
   const refreshToken = jwt.sign({role}, process.env.REFRESH_TOKEN_SECRET);
   const hashedToken = await bcrypt.hash(refreshToken, 10);
 
-  Users.create( { username: user, refreshToken: hashedToken }, (err, success) => {
-    if (err) console.log('Error in loginLink:', err);
-    if (success) {
-      console.log(success);
-      console.log('User created in DB');
-    }
-    mongoose.connection.close();
-  })
+  //check if user exists in DB if not found, create user and assign refresh token
+  Users.find({username: user}, (err, found) => {
+    if (err) console.log('Error in loginLink Users.find:', err);
+    if (!found[0]) {
+       Users.create({ username: user, refreshToken: hashedToken }, (nestedErr, success) => {
+        if (nestedErr) console.log('Error in loginLink Users.create:', nestedErr);
+        if (success) console.log('User created in DB');
+      });
+    };
+  });
 
-  res.cookie('accessToken', accessToken);
-  res.cookie('refreshToken', refreshToken);
+  res.cookie('accessToken', accessToken, { maxAge: 15 * 60 * 1000, httpOnly: true, secure: true });
+  res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true });
   return next();
 }
-
-//TEST:
-// link({}, {locals: {
-//   role: "admin",
-//   username: "phoenix"
-// }});
 
 //export
 module.exports = { loginLink };
