@@ -7,6 +7,7 @@ const {
 } = require('envfile');
 const sourcePath = '.env';
 
+
 // let roles = ['admin', 'read_only', 'group1']; //abstract out to use config files
 
 const createSecrets = (roles) => {

@@ -2,8 +2,7 @@
 
 
 // const roles = {
-// readOnly:[]
-  
+// Mutate:[Admin, developer]
 // }
 
 // module.exports = roles
