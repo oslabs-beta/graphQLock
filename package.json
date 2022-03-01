@@ -1,13 +1,9 @@
 {
    "name": "graphqlock",
    "description": "",
-   "version": "1.0.0",
+   "version": "1.0.3",
    "main": "main.js",
-   "scripts": {
-      "dev": "webpack serve",
-      "build": "webpack",
-      "test": "nodemon server/main.js"
-   },
+   "scripts": {},
    "repository": {
       "type": "git",
       "url": "git+https://github.com/oslabs-beta/graphQLock.git"

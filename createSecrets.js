@@ -1,12 +1,4 @@
 
-// const {generateSecrets} = require('graphQLock')
-// random 64 byte strings that encode the JWTs
-// making secret and putting the secrets in the .env file
-// JWTs are encoded - 
-
-// const roles = require('../configFiles/operations.config.gl');
-
-// require('dotenv').config();
 const fs = require('fs');
 const encrypt = require('crypto');
 const {
