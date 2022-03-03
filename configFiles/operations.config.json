@@ -1,0 +1,4 @@
+{
+  "admin": ["query", "mutation"],
+  "read_only": ["query"]
+}
