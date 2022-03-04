@@ -1,4 +1,4 @@
 {
-  "admin": ["query", "mutation"],
-  "read_only": ["query"]
+  "query": ["admin", "read_only"],
+  "mutation": ["admin"]
 }

@@ -1,151 +1,97 @@
 // read and validate tokens
 require('dotenv').config();
+const path = require('path');
+const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const { Users } = require('./models');
 const { loginLink } = require('./loginLink');
 const { createSecrets } = require('./createSecrets');
+const operations = require(path.resolve(__dirname, '../../config/operations.config'));
 
-// const roles = require('../configFiles/operations.config.gl');
-
-//TO DO:
-//Ensure res.locals.role works (are roles included in each request?) Determined that we will stick with the res.locals.role for now.
-
-// helper function that checks for an access token --move to controller
 async function checkForAccessToken(req, res) {
   //Access cookies
 
   //if there is already an accessToken, execute operations
   if (req.cookies.accessToken !== null) {
-    res.locals.permitted = true
-    res.locals.accessToken = req.cookies.accessToken
-    return
-  }
+    res.locals.permitted = true;
+    res.locals.accessToken = req.cookies.accessToken;
+    return;
+  };
 
   //If there is no refreshToken, then they will not be permitted
   if (req.cookies.refreshToken === null) {
-    res.locals.permitted = false
-    return
-  }
+    res.locals.permitted = false;
+    return;
+  };
 
   //Check for the refreshToken in the DB
   //if hashed refresh token matched users token, give new accessToken and refreshToken, delete old refresh token
-  //if tokens dont match, return next
+  //if tokens dont match, return 403 status
+  const userObj = jwt.decode(req.cookies.refreshToken);
 
-  //A WAY TO CONSISTENTLY ACQUIRE THE ROLE
-  const userRole = res.locals.role
-
-  Users.find({ username: req.body.user }, (err, user) => {
+  Users.find({ username: userObj.user }, (err, user) => {
     if (!err) {
       bcrypt.compare(refreshToken, user.refreshToken)
         .then(res => {
           if (res === true) {
             //give user a new accessToken
-            const secret = eval(`process.env.ACCESS_TOKEN_${userRole.toUpperCase()}_SECRET`)
-            const accessToken = jwt.sign(userRole, secret, { expiresIn: '15m' })
-            res.locals.accessToken = accessToken
+            const secret = process.env[`ACCESS_TOKEN_${userObj.role.toUpperCase()}_SECRET`];
+            const accessToken = jwt.sign(userObj.role, secret, { expiresIn: '15m' });
+            res.locals.accessToken = accessToken;
             //give user new refreshToken
-            const newRefreshToken = jwt.sign(userRole, process.env.REFRESH_TOKEN_SECRET)
-            const hashedToken = await bcrypt.hash(newRefreshToken, 10);
+            const newRefreshToken = jwt.sign(userObj.role, process.env.REFRESH_TOKEN_SECRET);
+            const hashedToken = bcrypt.hashSync(newRefreshToken, 10);
             //update the refreshToken in DB
-            Users.findOneAndUpdate({ username: req.body.user }, (err, user) => {
-              if (!err) {
-                user.refreshToken = hashedToken
-              } else {
-                return res.status(404).send('Error occured in checkAccessTokens');
-              }
-            })
-            res.locals.permitted = true
-            return
+            Users.findOneAndUpdate({ username: userObj.user }, { refreshToken: hashedToken});
+            res.locals.permitted = true;
+            return;
           }
           //refreshToken did not match
           else {
-            res.locals.permitted = false
-            return
-          }
-        })
+            console.log("Refresh Token invalid");
+            res.locals.permitted = false;
+            return;
+          };
+        });
     }
     else {
-      console.log(err)
-      return res.status(404).send('Error occurred in checkAccessTokens')
-    }
-  })
-}
+      console.log(err);
+      return res.status(403).json('User refresh token not found in database');
+    };
+  });
+};
 
 //Middleware to validate accessToken
-
-// check for the presence of access token and checks validity
-function validateToken(req, res, next) {
-  checkForAccessToken(req, res);
-
-  //checks for presence of a token
-  if (res.locals.permitted == false) return res.sendStatus(401);
-
-  //Check access tokens validity
-  const { role, accessToken } = res.locals;
-  //For every role that is approved for this operation, we test against those secrets
-  //Link to roles that are approved, iterate over that array using each of the roles' in that arrays secrets.
-  const secret = eval(`process.env.ACCESS_TOKEN_${role.toUpperCase()}_SECRET`)
-  jwt.verify(accessToken, secret, (err, found) => {
-    if (err) {
-      console.log(err);
-      return res.status(401).send('Error occurred in validateToken');
-    } else {
-      if (found === undefined) {
-        console.log('Access Token Invlaid');
-        return res.status(401).send('Access Token Invalid')
-      }
-
-      return next();
-    }
-  });
-}
-
-//Operations File
-// {
-//   Mutate: ['Admin', 'Developer']
-//   Read-Only: ['Customer']
-// }  
 
 async function validateToken(req, res, next) {
   checkForAccessToken(req, res);
 
   //checks for presence of a token
-  if (res.locals.permitted == false) return res.sendStatus(401);
+  if (res.locals.permitted == false) return res.status(403).json('Access token not provided');
 
   //Check access tokens validity
-  const { accessToken } = res.locals;
+  const accessToken = req.cookies.accessToken;
+  const operation = req.body.query.split('{\n')[0].trim().split(' ')[0];
+  
   //For every role that is approved for this operation, we test against those secrets
-  //Link to roles that are approved, iterate over that array using each of the roles' in that arrays secrets.
-  const operations;  // --> Operations object
-  const operation; // --> specific operation i.e. 'Mutate'
-  const authorized = false
+  let authorized = false;
+  let shouldBreak = false;
   for (const role of operations[operation]) {
-    const secret = eval(`process.env.ACCESS_TOKEN_${role.toUpperCase()}_SECRET`)
-    await jwt.verify(accessToken, secret, (err, success) => {
+    const secret = process.env[`ACCESS_TOKEN_${role.toUpperCase()}_SECRET`];
+    jwt.verify(accessToken, secret, (err, success) => {
       if (success) {
         authorized = true;
-        break;
-      }
-    })
-  }
-  if (authorized) return next()
-  else {
-    console.log('Not authorized');
-    return res.status(401).send('Access Token authorization failed');
-  }
-};
+        shouldBreak = true;
+      };
+    });
+    if (shouldBreak) break;
+  };
 
-//global error handling
-// app.use((err, req, res, next) => {
-//   const defaultError = {
-//     log: 'Express error handler caught unknown middleware error',
-//     status: 500,
-//     message: { error: 'Caught Unknown Error'}
-//   }
-//   const errObj = {...defaultError, ...err};
-//   console.log(errObj.log);
-//   return res.status(errObj.status).json(errObj.message);
-// });
+  if (authorized) return next();
+  else {
+    return res.status(403).json('Invalid Permissions');
+  };
+};
 
 //export
 module.exports = { validateToken, loginLink, createSecrets };
