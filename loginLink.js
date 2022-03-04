@@ -9,17 +9,16 @@ async function loginLink (req, res, next) {
   const role = res.locals.role;
   const user = res.locals.username;
   
-  secret = process.env[`ACCESS_TOKEN_${role.toUpperCase()}_SECRET`]
-  const accessToken = jwt.sign({role}, secret, {expiresIn: '15m'});
-
-  const refreshToken = jwt.sign({role}, process.env.REFRESH_TOKEN_SECRET);
+  const accessToken = jwt.sign({role}, process.env[`ACCESS_TOKEN_${role.toUpperCase()}_SECRET`], {expiresIn: '15m'});
+  const refreshToken = jwt.sign({user, role}, process.env.REFRESH_TOKEN_SECRET);
   const hashedToken = await bcrypt.hash(refreshToken, 10);
-
+  
+  //if user doent exist, create user in DB
   Users.find({username: user}, (err, found) => {
     if (err) console.log('Error in loginLink Users.find:', err);
     if (!found[0]) {
        Users.create({ username: user, refreshToken: hashedToken }, (nestedErr, success) => {
-        if (nestedErr) console.log('Error in loginLink Users.create:', nestedErr);
+        if (nestedErr) console.log('Error saving refreshToken to DB in loginLink:', nestedErr);
         if (success) console.log('User created in DB');
       });
     }; 
@@ -30,5 +29,4 @@ async function loginLink (req, res, next) {
   return next();
 }
 
-//export
 module.exports = { loginLink };
