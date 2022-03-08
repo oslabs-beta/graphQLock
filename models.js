@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-mongoose.connect(process.env.GRAPHQLOCK_DB_URI, {
+mongoose.connect(process.env.MONGO_URI, {
     // options for the connect method to parse the URI
     useNewUrlParser: true,
     useUnifiedTopology: true,
