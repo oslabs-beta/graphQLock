@@ -23,7 +23,7 @@ function loginLink (req, res, next) {
     }; 
   });
   
-  res.cookie('accessToken', accessToken, { maxAge: 1 * 20 * 1000, httpOnly: true, secure: true });
+  res.cookie('accessToken', accessToken, { maxAge: 15 * 60 * 1000, httpOnly: true, secure: true });
   res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true });
   return next();
 }

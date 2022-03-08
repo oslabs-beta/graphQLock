@@ -16,8 +16,6 @@
    "homepage": "https://github.com/oslabs-beta/graphQLock#readme",
    "dependencies": {
       "bcrypt": "^5.0.1",
-      "config": "^3.3.7",
-      "cookie-parser": "^1.4.6",
       "dotenv": "^16.0.0",
       "envfile": "^6.17.0",
       "express": "^4.17.3",
