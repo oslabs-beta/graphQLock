@@ -1,8 +1,0 @@
-2.22.2022: created base files (server, configFiles, authMiddleware, main.js) 
-and webpack. wrote first drafts of loginLink and server
-2.23.2022: connected mongo databse and set up schema, refactored access token functionality,
-published package to npm, setup refresh token functionality
-2.24.2022: built in refresh token functionality, created cookie functionality, encrypted secret tokens and saved to .env files
-built out check for access token function
-2.28.2022: createSecret functionality works, tokens save to .env file sucessfully, working out how to format roles object,
-updated npm package, got refresh tokens and access tokens working got functionality of loginLink file running
