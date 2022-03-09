@@ -66,13 +66,12 @@ If an access token exists, the query operation will be validated against the ope
 
 If an access token does not exist, the middleware will check for a refresh token. If the refresh token is not found, the user will receive an error. Otherwise, the refresh token will be used to generate a new access token, which will then follow the same validation steps outlined above.
 
-Examples of requiring in and using the middleware functions:
+In the below example, userController.verifyLogin would be where the res.locals object is populated with username and role:
 ```
 const { loginLink } = require('graphqlock');
 
 router.post('/login',
   userController.verifylogin,
-  userController.setCookieANDToken,
   loginLink,
   (req, res) => {
     return res.status(200).json(res.locals);
@@ -101,12 +100,12 @@ Here are some new features we would like to implement:
 
 ## To Learn More
 
-- Visit the GraphQLock [website]()
-- Read the GraphQLock [Medium article]()
+- Visit the GraphQLock [website](https://www.graphqlock.io/)
+- Read the GraphQLock [Medium article](https://medium.com/@drakeocinco/graphqlock-secure-your-graphql-application-with-ease-e7bc3b85baaa)
 
 ## Contributors
 
-- Charlie Huang [@CharlieHuangDev](https://github.com/CharlieHuangDev)
+- Charlie Huang [@CharlieHuangDev](https://github.com/huangcharlie)
 - Drake Williams [@DRWilliams527](https://github.com/DRWilliams527)
 - Jiwon Chung [@jchung07](https://github.com/jchung07)
 - Phoenix Newman [@phoeN24](https://github.com/phoeN24)
