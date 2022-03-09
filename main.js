@@ -6,7 +6,7 @@ const bcrypt = require('bcrypt');
 const { Users } = require('./models');
 const { loginLink } = require('./loginLink');
 const { createSecrets } = require('./createSecrets');
-const operations = require(path.resolve(__dirname, '../../config/operations.config'));
+const operations = require(path.resolve(__dirname, '../../graphqlock.json'));
 
 async function checkForAccessToken(req, res) {
   //Access cookies
