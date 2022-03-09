@@ -3,8 +3,7 @@ const encrypt = require('crypto');
 const path = require('path');
 const { parse, stringify } = require('envfile');
 const sourcePath = '.env';
-// const operations = require(path.resolve(__dirname, '../../graphqlock.json'));
-const operations = require(path.resolve(__dirname, './graphqlock.json'));
+const operations = require(path.resolve(__dirname, '../../graphqlock.json'));
 
 const createSecrets = () => {
   //obtain a list of roles through Object.keys on the client decided JSON object

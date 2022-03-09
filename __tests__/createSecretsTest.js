@@ -1,15 +1,15 @@
+// to test, temporarily edit createSecrets operations variable to the appropriate path seen below:
+    // const operations = require(path.resolve(__dirname, './graphqlock'));
+
 const fs = require('fs');
 const path = require('path');
 const { parse, stringify } = require('envfile');
 const sourcePath = '.env';
 const { createSecrets } = require('../createSecrets');
-// console.log(Object.keys(operations));
 
 
 describe('createSecrets function', () => {
   const operations = require(path.resolve(__dirname, '../graphqlock.json'));
-  // to test, temporarily edit createSecrets operations variable to the appropriate path seen below:
-    // const operations = require(path.resolve(__dirname, './graphqlock'));
 
   beforeAll(async () => {
     await fs.promises.writeFile(sourcePath, stringify({}));
