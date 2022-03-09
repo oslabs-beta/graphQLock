@@ -30,7 +30,7 @@ const createSecrets = () => {
       if (err) {
         return console.log(err);
       };
-      // console.log("File Saved");
+      console.log("File Saved");
     });
   });
 };
