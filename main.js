@@ -6,7 +6,7 @@ const bcrypt = require('bcrypt');
 const { Users } = require('./models');
 const { loginLink } = require('./loginLink');
 const { createSecrets } = require('./createSecrets');
-const operations = require(path.resolve(__dirname, '../../config/operations.config'));
+const operations = require(path.resolve(__dirname, '../../graphqlock.json'));
 
 async function checkForAccessToken(req, res) {
   //Access cookies
@@ -80,7 +80,7 @@ async function validateToken(req, res, next) {
 
   let authorized = false;
 
-  jwt.verify(accessToken, process.env[`ACCESS_TOKEN_${userObj.role.toUpperCase()}_SECRET`], (err, success) => {
+  jwt.verify(accessToken, process.env[`ACCESS_TOKEN_${userObj.role.toUpperCase()}_SECRET`], { algorithms: ['RS256'] }, (err, success) => {
     if (success) {
       if (!(operation in operations[success.role])) return;
       if (operations[success.role][operation].includes(field) || operations[success.role][operation].includes('.')) authorized = true;
