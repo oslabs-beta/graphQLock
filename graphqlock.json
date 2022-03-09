@@ -1,0 +1,13 @@
+{
+  "admin": {
+    "query": ["."], 
+    "mutation": ["."]
+  },
+  "contractor": {
+    "query": ["people"], 
+    "mutation": ["addCharacter", "updateCharacter"]
+  },
+  "read_only": {
+    "query": ["."]
+  }
+}
