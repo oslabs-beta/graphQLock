@@ -48,7 +48,7 @@ async function checkForAccessToken(req, res) {
         
         //sets cookies to be sent back to client
         res.locals.accessToken = newAccessToken
-        res.cookie('accessToken', newAccessToken, { maxAge: 1 * 20 * 1000, httpOnly: true, secure: true });
+        res.cookie('accessToken', newAccessToken, { maxAge: 15 * 60 * 1000, httpOnly: true, secure: true });
         res.cookie('refreshToken', newRefreshToken, { httpOnly: true, secure: true });
         return;
       }
