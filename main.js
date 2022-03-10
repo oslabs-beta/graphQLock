@@ -75,7 +75,7 @@ async function validateToken(req, res, next) {
   //checks access token validity
   const accessToken = res.locals.accessToken;
   const userObj = jwt.decode(accessToken);
-  const operation = req.body.query.split('{\n')[0].trim().split(' ')[0];
+  const operation = req.body.query.split('{\n')[0].trim().split(' ')[0] || 'query';
   const field = req.body.query.split('{\n')[1].trim().split(' ')[0];
 
   let authorized = false;
