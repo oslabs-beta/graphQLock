@@ -3,9 +3,9 @@
   <br>GraphQLock</br>
 </h1>
 
-GraphQLock is a server-side NPM middleware library package that provides a layer of security for Express GraphQL servers by using user defined roles and operations to authorize queries that access and mutate data stored in a database.
+GraphQLock is a server-side NPM middleware library that provides a layer of security for Express GraphQL servers by using developer defined roles and operations to authorize queries that access and mutate data stored in a database.
 
-For a seamless user experience, GraphQLock utilizes access and refresh tokens for user authentication and authorization. Because a MongoDB model is used to store the refresh tokens, you will need to have a MongoDB Atlas [account](https://www.mongodb.com/atlas/database) to connect the database to the middleware.
+For a seamless developer experience, GraphQLock utilizes access and refresh tokens for user authentication and authorization. Because a MongoDB model is used to store the refresh tokens, you will need to have a MongoDB Atlas [account](https://www.mongodb.com/atlas/database) to connect the database to the middleware.
 
 ## Features
 
